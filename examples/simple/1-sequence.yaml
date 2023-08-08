@@ -1,0 +1,12 @@
+fps: 25
+film:
+  - type: layers
+    layers:
+      - image_path: python.png
+        scenes:
+          - duration: 2000
+            end_y: 400
+      # When start_x or start_y are not defined, defaults to previous end_x and end_y
+      - image_path: yaml.png
+        scenes:
+          - duration: 1000

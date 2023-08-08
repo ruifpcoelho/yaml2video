@@ -1,0 +1,23 @@
+fps: 25
+film:
+  - type: layers
+    layers:
+      - image_path: python.png
+        scenes:
+          - duration: 2000
+            end_y: 400
+      # start_t references the time since the start of the video
+      - image_path: yaml.png
+        scenes:
+          - start_t: 2500
+            duration: 2500
+            start_x: 200
+      - image_path: yaml.png
+        scenes:
+          - start_t: 2700
+            duration: 2300
+      # if start_t is absent, starts from the end of previous layer
+      - image_path: yaml.png
+        scenes:
+          - duration: 2800
+            start_x: 880

@@ -1,0 +1,9 @@
+fps: 25
+film:
+  - type: layers
+    layers:
+      - image_path: python.png
+        scenes:
+          # start_x and end_x defaults to the center of the canvas
+          # start_y and end_y defaults to the ouside bottom and middle of the canvas
+          - duration: 2000

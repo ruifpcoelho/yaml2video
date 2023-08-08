@@ -1,0 +1,138 @@
+# https://pypi.org/project/yamale/
+
+# Number of frames per second.
+# Type: integer
+# Default: 25
+fps: int(required=False)
+
+# Canvas definition.
+canvas: include('canvas', required=False)
+
+# Name images to be used by its reference name.
+images: list(include('named_image_from_text'), include('named_image_from_file'), required=False)
+
+# Description of the sequence do be rendered
+# Each layer represents a sequence from the begining to the end of the video
+film: list(include('videopath'), include('layers'))
+
+# Output file path for saving the resulting video
+# When using a relative path, it is relative to the campaign folder.
+# Example: ./output.mp4
+output_filepath: str(matches="^(?:[\w\-.]+\/)*[\w\-.]+$", required=False)
+
+---
+layers:
+  type: str(equals='layers')
+  layers: list(include('layers_from_path'), include('layers_from_image'))
+
+---
+layers_from_path:
+  # Each element in the list can have either 'filename' or 'image', but not both.
+  image_path: str(matches="^(?:[\w\-.]+\/)*[\w\-.]+$")
+
+  # The width of the image, in case resize is needed.
+  # Can be an absolute number or a percentage relative to the background image.
+  # If set to None and height is set, it is resized proportionally
+  # Examples: 500, 30%
+  # Default: None
+  width: num(required=False)
+
+  # The height of the image, in case resize is needed.
+  # Can be an absolute number or a percentage relative to the background image.
+  # If set to None and height is set, it is resized proportionally
+  # Examples: 500, 30%
+  # Default: None
+  height: num(required=False)
+
+  scenes: list(include('scene'))
+
+---
+layers_from_image:
+  # Each element in the list can have either 'filename' or 'image', but not both.
+  imagename: str(required=False)
+
+  # The width of the image, in case resize is needed.
+  # Can be an absolute number or a percentage relative to the background image.
+  # If set to None and height is set, it is resized proportionally
+  # Examples: 500, 30%
+  # Default: None
+  width: num(required=False)
+
+  # The height of the image, in case resize is needed.
+  # Can be an absolute number or a percentage relative to the background image.
+  # If set to None and height is set, it is resized proportionally
+  # Examples: 500, 30%
+  # Default: None
+  height: num()
+
+  scenes: list(include('scene'))
+
+---
+scene:
+  # Easing efects of an image over the canvas background
+
+  # The starting horizontal position of the image
+  # Default: background width + 1/2 of the width of the image
+  start_x: num(required=False)
+
+  # The starting vertical position of the image
+  # Default: background height + 1/2 of the height of the image
+  start_y: num(required=False)
+
+  # The ending horizontal position of the image
+  # Default: Center of the background image
+  end_x: num(required=False)
+
+  # The ending horizontal position of the image
+  # Default: Middle of the background image
+  end_y: num(required=False)
+
+  # The duration of the scene in miliseconds
+  # Default: duration of 1 frame
+  duration: num(required=False)
+
+  # The effect of the movement
+  # Default: ease-in
+  effect: str(required=False)
+
+  # Number of miliseconds before scene start, relative to the begining of the video
+  # None means start with previous
+  # Default: None
+  start_t: num(required=False)
+
+---
+named_image_from_text:
+  name: str()
+  source: str(equals='text')
+  text: str()
+  color: str(matches="^#([A-Fa-f0-9]{6})$", required=False)
+  font: str(required=False)
+  font_scale: num(required=False)
+
+---
+named_image_from_file:
+  name: str()
+  image_path: str(matches="^(?:[\w\-.]+\/)*[\w\-.]+$")
+
+---
+videopath:
+  type: str(equals='video')
+  video_path: str(matches="^(?:[\w\-.]+\/)*[\w\-.]+$")
+
+---
+# Canvas
+canvas:
+  # Video canvas width
+  # Type: integer
+  # Default: 1080
+  width: int(required=False)
+
+  # Video canvas height
+  # Type: integer
+  # Default: 1920
+  height: int(required=False)
+
+  # Canvas background color
+  # Format: #RRGGBB
+  # Default: #ffffff
+  background_color: str(matches="^#([A-Fa-f0-9]{6})$", required=False)

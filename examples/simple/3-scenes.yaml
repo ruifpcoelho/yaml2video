@@ -1,0 +1,17 @@
+fps: 25
+film:
+  - type: layers
+    layers:
+      - image_path: python.png
+        width: 300
+        scenes:
+          - duration: 2000
+            end_y: 200
+          # The second scene moves the same image
+          # If not defined, the start_x and start_y are the same as previous end_x and end_y
+          - end_y: 1720
+            duration: 2000
+            effect: bounce
+          # Keeping in the same position have the pause effect
+          - duration: 2000
+            end_y: 1720
