@@ -1,5 +1,5 @@
 
-# MUPIPY
+# YAML2VIDEO
 
 This software takes YAML files as input and converts into video sequences.
 
