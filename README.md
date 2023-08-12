@@ -34,14 +34,14 @@ git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY-NAME
 ````
 
 3. You can have the videos generated in two possible ways:
-
-a) Placed in the repository alongside the respective YAML files, with matching names.
-b) The created videos made available as artifacts.
+   - Placed in the repository alongside the respective
+   YAML files, with matching names.
+   - The created videos made available as artifacts.
 
 Choose the option and update the [workflow](https://github.com/ruifpcoelho/yaml2video-template/blob/master/.github/workflows/build-video.yml) file accordingly:
 
-a) If you choose to place videos in the repository, keep the "Upload Artifact" step and delete the "Update repo" step in the workflow file.
-b) If you choose to make videos available as artifacts, keep the "Update repo" step and delete the "Upload Artifact" step in the workflow file.
+- If you choose to place videos in the repository, keep the "Upload Artifact" step and delete the "Update repo" step in the workflow file.
+- If you choose to make videos available as artifacts, keep the "Update repo" step and delete the "Upload Artifact" step in the workflow file.
 
 4. Make Changes to YAML File and Replace Images
 
