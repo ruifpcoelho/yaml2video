@@ -36,14 +36,17 @@ def validate_campaign_settings(campaign_settings):
 
                 # Load image into campaign data structure
                 if 'image_path' in layer:
-                    image_path = campaign_settings['_process']['path'] + '/' + layer['image_path']
+                    image_path = os.path.join(campaign_settings['_process']['path'], layer['image_path'])
                     image = load_image(image_path=image_path)
-                    print(image_path)
+                    if image is None:
+                        return None
                 elif 'image_name' in layer:
                     # TODO check if exists
                     image = campaign_settings['images'][layer['image_name']]
                 else:
-                    print('ERROR: Missing reference to layer image.')
+                    print('Error: Missing reference to layer image.')
+                    if image is None:
+                        return None
 
                 # Set image dimensions if needed
                 layer['width'] = layer.get('width', None)
@@ -88,6 +91,15 @@ def validate_campaign_settings(campaign_settings):
                     scene['_processed']['end_x'] = end_x
                     scene['_processed']['start_y'] = start_y
                     scene['_processed']['end_y'] = end_y
+        elif segment['type'] == 'video':
+            video_path = os.path.join(campaign_settings['_process']['path'] , segment['video_path'])
+            # Checks if video exists
+            if not os.path.exists(video_path):
+                print('Error: video file not found: ' + video_path)
+                return None
+            if not is_valid_video(video_path):
+                print('Error: video file invalid format: ' + video_path)
+                return None
 
     return merged_settings
 
@@ -125,7 +137,7 @@ def find_campaigns_in_folder(folder_path):
         for filename in os.listdir(folder_path):
             if filename.startswith('.'):
                 continue
-            filepath = folder_path + '/' + filename
+            filepath = os.path.join(folder_path, filename)
             if os.path.isfile(filepath) and filename.lower().endswith(('.yaml', '.yml')):
                 campaigns.append(filepath)
             elif os.path.isdir(filepath):
@@ -171,7 +183,7 @@ def get_filesystem_campaigns(current_folder=settings.campaigns_path):
     # Browse current folder
     for file_name in os.listdir(current_folder):
         if file_name.lower().endswith(('.yaml', '.yml')):
-            campaigns.append(current_folder + '/' + file_name)
+            campaigns.append(os.path.join(current_folder, file_name))
         elif os.path.isdir(file_name):
             folder_path = os.path.join(current_folder, file_name)
             result = get_filesystem_campaigns(folder_path)
@@ -195,10 +207,6 @@ def create_temp_folder(folder_path):
     Returns:
         str: The path of the created temporary folder.
     '''
-
-    # TODO: confirm if can be deleted
-    if folder_path[-1] != '/':
-        folder_path += '/'
 
     # Delete existing folder if exists
     delete_temp_folder(folder_path)
@@ -388,7 +396,7 @@ def load_image(
         # Check if image exists
         if not os.path.exists(image_path):
             print('Error: image file not found: ' + image_path)
-            return False
+            return None
 
         # Read the image file
         image = cv2.imread(image_path)
@@ -491,7 +499,7 @@ def create_frames_from_layers(canvas, layers_images, layers_positions, images_pa
                 frame_image[frame_y_start:frame_y_end, frame_x_start:frame_x_end] = image[image_y_start:image_y_end, image_x_start:image_x_end]
 
         frame_name = 'F' + str(frame_ix).rjust(10, '0')
-        output_file = images_path + '/' + frame_name + '.' + settings.file_format
+        output_file = os.path.join(images_path, frame_name + '.' + settings.file_format)
         cv2.imwrite(output_file, frame_image)
 
 
@@ -562,7 +570,7 @@ def create_video_from_campaign_config(campaign_config):
                 # TODO: consider using layer dict values and remove this code.
                 # This is duplicated from validate_campaign_settings()
                 if 'image_path' in layer:
-                    image_path = campaign_config['_process']['path'] + '/' + layer['image_path']
+                    image_path = os.path.join(campaign_config['_process']['path'], layer['image_path'])
                     image = load_image(image_path=image_path)
                 elif 'image' in layer:
                     # TODO check if exists
@@ -606,8 +614,8 @@ def create_video_from_campaign_config(campaign_config):
             campaign_config['_process']['segment_videos'].append(segment['_process']['video_path'])
 
         elif segment['type'] == 'video':
-            # TODO: validate if exists and is video
-            campaign_config['_process']['segment_videos'].append(campaign_config['_process']['path'] + '/' + segment['video_path'])
+            video_path = os.path.join(campaign_config['_process']['path'], segment['video_path'])
+            campaign_config['_process']['segment_videos'].append(video_path)
         else:
             print('WARNING: Unknown segment type')
 
@@ -621,3 +629,24 @@ def create_video_from_campaign_config(campaign_config):
         output_path=campaign_config['output_file_path']
     )
     delete_temp_folder(temp_folder_path)
+
+
+def is_valid_video(file_path):
+    '''
+    Check if a given file is a valid video file.
+    '''
+    try:
+        # Open the video file
+        cap = cv2.VideoCapture(file_path)
+    except:
+        print('erro')
+        return False  # An error occurred
+
+    try:
+        # Check if the file was opened successfully and has valid frames
+        if cap.isOpened():
+            ret, _ = cap.read()
+            cap.release()
+            return True
+    except:
+        return False  # An error occurred

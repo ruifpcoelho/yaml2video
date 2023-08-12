@@ -24,4 +24,7 @@ if __name__ == '__main__':
         merged_campaign_config = validate_campaign_settings(campaign_config)
 
         # Process campaign
-        result = create_video_from_campaign_config(merged_campaign_config)
+        if merged_campaign_config is not None:
+            result = create_video_from_campaign_config(merged_campaign_config)
+        else:
+            print('Error: Campaign not processed: ' + campaign_config['_process']['yaml_path'])
