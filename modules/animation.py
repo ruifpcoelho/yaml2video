@@ -1,12 +1,8 @@
-from .base import *
 from . import settings
 
 import cv2
 import math
 import numpy as np
-import os
-
-from itertools import accumulate
 
 
 def pause(background_image, duration=None, file_id=0):

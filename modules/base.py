@@ -97,7 +97,7 @@ def validate_campaign_settings(campaign_settings):
                     scene['_processed']['start_y'] = start_y
                     scene['_processed']['end_y'] = end_y
         elif segment['type'] == 'video':
-            video_path = os.path.join(campaign_settings['_process']['path'] , segment['video_path'])
+            video_path = os.path.join(campaign_settings['_process']['path'], segment['video_path'])
             # Checks if video exists
             if not os.path.exists(video_path):
                 print('Error: video file not found: ' + video_path)
@@ -510,8 +510,6 @@ def create_frames_from_layers(canvas, layers_images, layers_positions, images_pa
                     else:
                         frame_x_end = x + image_width
                         image_x_end = image_width
-
-                #frame_image[frame_y_start:frame_y_end, frame_x_start:frame_x_end] = image[image_y_start:image_y_end, image_x_start:image_x_end]
 
                 foreground = image[image_y_start:image_y_end, image_x_start:image_x_end]
                 background = frame_image[frame_y_start:frame_y_end, frame_x_start:frame_x_end]
