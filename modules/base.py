@@ -7,11 +7,15 @@ import numpy as np
 import os
 import shutil
 import yamale
+import cairosvg
 
 
 def apply_defaults_settings(input_dict, defaults_dict):
     for key, default_value in defaults_dict.items():
-        input_dict[key] = input_dict.get(key, default_value)
+        if type(input_dict.get(key, None)) == dict:
+            input_dict[key] = apply_defaults_settings(input_dict[key], defaults_dict[key])
+        else:
+            input_dict[key] = input_dict.get(key, default_value)
     return input_dict
 
 
@@ -39,6 +43,7 @@ def validate_campaign_settings(campaign_settings):
                     image_path = os.path.join(campaign_settings['_process']['path'], layer['image_path'])
                     image = load_image(image_path=image_path)
                     if image is None:
+                        print('Error: Error loading image.')
                         return None
                 elif 'image_name' in layer:
                     # TODO check if exists
@@ -398,8 +403,18 @@ def load_image(
             print('Error: image file not found: ' + image_path)
             return None
 
-        # Read the image file
-        image = cv2.imread(image_path)
+        file_extension = os.path.splitext(image_path)[1].lower()
+
+        # SVG file support
+        if file_extension == '.svg':
+            # Render SVG to a Cairo surface in memory
+            temp_file_path = image_path + '.png'
+            cairosvg.svg2png(url=image_path, write_to=temp_file_path)
+            image = cv2.imread(temp_file_path, cv2.IMREAD_UNCHANGED)
+            os.remove(temp_file_path)
+        else:
+            # Read the image file
+            image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
 
     elif image is not None:
         # Using image as input
@@ -438,7 +453,6 @@ def create_frames_from_layers(canvas, layers_images, layers_positions, images_pa
 
     # Loop every frame
     for frame_ix, frame in enumerate(zipped_positions):
-
         frame_image = base_image.copy()
 
         # Loop every layer
@@ -496,7 +510,15 @@ def create_frames_from_layers(canvas, layers_images, layers_positions, images_pa
                     else:
                         frame_x_end = x + image_width
                         image_x_end = image_width
-                frame_image[frame_y_start:frame_y_end, frame_x_start:frame_x_end] = image[image_y_start:image_y_end, image_x_start:image_x_end]
+
+                #frame_image[frame_y_start:frame_y_end, frame_x_start:frame_x_end] = image[image_y_start:image_y_end, image_x_start:image_x_end]
+
+                foreground = image[image_y_start:image_y_end, image_x_start:image_x_end]
+                background = frame_image[frame_y_start:frame_y_end, frame_x_start:frame_x_end]
+                if foreground.shape[2] > 3:
+                    alpha = foreground[:, :, 3:4]
+                    alpha = alpha.astype(float) / 255.0
+                    frame_image[frame_y_start:frame_y_end, frame_x_start:frame_x_end] = foreground[:, :, :3] * alpha + background * (1 - alpha)
 
         frame_name = 'F' + str(frame_ix).rjust(10, '0')
         output_file = os.path.join(images_path, frame_name + '.' + settings.file_format)
