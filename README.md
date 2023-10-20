@@ -65,6 +65,16 @@ This application uses [yamale](https://pypi.org/project/yamale/) for yaml files 
 
 The YAML schema is defined in [schema.yaml](./schema.yaml).
 
+## Issues
+
+### png showed as blank image on video
+
+Tip: convert using Gimp to:
+
+* Image > Mode > RGB (already done in script for images withou alfa channel)
+* Image > Precision > 8 bit Integer
+* Layer > Transparency > Add Alfa Channel
+
 ## TODO
 
 * SVG file format support

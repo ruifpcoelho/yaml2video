@@ -416,6 +416,10 @@ def load_image(
             # Read the image file
             image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
 
+            # Convert the image to RGBA format
+            if image.shape[2] == 3:
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2RGBA)
+
     elif image is not None:
         # Using image as input
         pass
